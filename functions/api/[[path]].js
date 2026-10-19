@@ -44,7 +44,6 @@ export async function onRequest(context) {
     const upstream = await fetch(new Request(backendUrl.toString(), { ...init, duplex: "half" }));
     const responseHeaders = new Headers(upstream.headers);
     responseHeaders.set("cache-control", "no-store");
-    responseHeaders.delete("set-cookie");
     return new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,
