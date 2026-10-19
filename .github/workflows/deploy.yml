@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - name: Run Cloudflare/admin security tests
         run: npm run check:cloudflare
       - name: Build public frontend for Pages
@@ -46,7 +46,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - run: npm run build:pages
         env:
           NODE_ENV: production
