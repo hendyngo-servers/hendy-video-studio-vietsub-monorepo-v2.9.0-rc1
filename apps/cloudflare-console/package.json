@@ -1,0 +1,7 @@
+{
+  "name": "@hendy/cloudflare-console",
+  "version": "2.1.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "Static admin console for Cloudflare infrastructure inventory."
+}

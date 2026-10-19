@@ -1,0 +1,12 @@
+{
+  "name": "@hendy-studio/admin-web",
+  "version": "2.9.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "Standalone Hendy Admini Control Plane entrypoint. Dependencies and production build are managed by the monorepo root.",
+  "scripts": {
+    "dev": "vite --config ../../vite.config.ts --root ../.. --open /apps/admin-web/index.html",
+    "build": "vite --config ../../vite.config.ts --root ../.. build",
+    "preview": "vite preview --config ../../vite.config.ts --root ../.. --open /admin.html"
+  }
+}

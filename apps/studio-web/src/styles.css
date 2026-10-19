@@ -1,0 +1,5 @@
+
+:root { color-scheme: dark; }
+html, body.studio-standalone-body, body.studio-standalone-body #root { min-height:100dvh; width:100%; margin:0; }
+body.studio-standalone-body { background:#0a0a0a; color:#f8fafc; font-family:"Plus Jakarta Sans",system-ui,sans-serif; }
+body.studio-standalone-body #root { overflow-x:clip; }

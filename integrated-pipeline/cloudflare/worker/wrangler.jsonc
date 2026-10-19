@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "telegram-video-editor-platform-pipeline-integrated",
+  "main": "./src/index.ts",
+  "compatibility_date": "2026-10-08",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "vars": {
+    "CORS_ALLOWED_ORIGINS": "https://tma.example.com",
+    "ADMIN_ID": "",
+    "MINI_APP_URL": "https://tma.example.com/pipeline/",
+    "WEB_APP_URL": "https://tma.example.com/"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PIPELINE_LOGS",
+      "bucket_name": "video-pipeline-logs"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "BOT_STATE"
+    },
+    {
+      "binding": "CONFIG_SOT"
+    }
+  ],
+  "secrets": {
+    "required": [
+      "BACKEND_ORIGIN",
+      "BOT_TOKEN",
+      "EDGE_SHARED_SECRET"
+    ]
+  }
+}

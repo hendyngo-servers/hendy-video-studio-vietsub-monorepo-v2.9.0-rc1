@@ -1,0 +1,7 @@
+{
+  "name": "@hendy/cloudflare-control-api",
+  "version": "2.1.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "Access-protected read-only Cloudflare inventory API."
+}

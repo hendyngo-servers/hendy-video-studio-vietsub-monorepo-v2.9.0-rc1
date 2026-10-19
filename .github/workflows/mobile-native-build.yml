@@ -1,0 +1,31 @@
+name: Hendy Studio Pro - Mobile Native Build (Android .aab/.apk & iOS .ipa)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "integrated-pipeline/androidApp/**"
+      - "integrated-pipeline/iosApp/**"
+      - "integrated-pipeline/composeApp/**"
+
+jobs:
+  mobile-kmp-build:
+    name: "[TẦNG 1] Build Native Android (Media3 ExoPlayer) & iOS (AVKit) Artifacts"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Monorepo
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17 for Kotlin Multiplatform
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Verify Integrated Pipeline Structure
+        run: |
+          test -d integrated-pipeline/androidApp
+          test -d integrated-pipeline/iosApp
+          test -d integrated-pipeline/desktopApp
+          test -d integrated-pipeline/composeApp
+          test -d integrated-pipeline/core

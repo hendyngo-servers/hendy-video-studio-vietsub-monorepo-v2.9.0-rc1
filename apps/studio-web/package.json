@@ -1,0 +1,17 @@
+{
+  "name": "@hendy-studio/studio-web",
+  "version": "2.9.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "Standalone Hendy Studio/Vietsub editor entrypoint. Root owns shared React/Vite dependencies.",
+  "scripts": {
+    "dev": "vite --config ../../vite.config.ts --root ../.. --open /apps/studio-web/index.html",
+    "build": "vite --config ../../vite.config.ts --root ../.. build",
+    "preview": "vite preview --config ../../vite.config.ts --root ../.. --open /studio.html"
+  },
+  "dependencies": {
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

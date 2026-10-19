@@ -1,0 +1,8 @@
+name = "hendy-studio-pro-edge-gateway"
+main = "index.ts"
+compatibility_date = "2026-10-01"
+
+[vars]
+USER_PLANE_ORIGIN = "https://hendy-video-studio-new-pro.onrender.com"
+ADMIN_PLANE_ORIGIN = "https://admin.hendystudio.net"
+ALLOWED_ADMIN_CIDRS = "10.240.0.0/16,172.16.88.0/24,192.168.1.0/24"

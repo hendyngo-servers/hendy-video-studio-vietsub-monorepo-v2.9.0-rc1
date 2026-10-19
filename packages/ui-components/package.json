@@ -1,0 +1,6 @@
+{
+  "name": "@hendy-studio/ui-components",
+  "version": "2.8.0",
+  "private": true,
+  "description": "[TẦNG 2] Shared Frontend Engine Components (DOM Virtualization, FFmpeg.wasm Bench, Audio Wave)"
+}

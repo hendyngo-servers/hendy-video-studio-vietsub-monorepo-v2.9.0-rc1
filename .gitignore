@@ -1,0 +1,26 @@
+# Node / Vite builds
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+.env
+.env.*
+!.env.example
+
+# Cloudflare local secrets and generated output
+services/cloudflare-control-api/.dev.vars
+services/cloudflare-control-api/.dev.vars.*
+!services/cloudflare-control-api/.dev.vars.example
+.wrangler/
+.wrangler-dry-run/
+# Credentials and local-only key material
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+.DS_Store

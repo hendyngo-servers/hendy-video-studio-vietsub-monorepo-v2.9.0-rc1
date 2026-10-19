@@ -1,0 +1,28 @@
+
+:root { color-scheme: dark; --admin-bg: #0b0c10; --admin-panel: #12151d; --admin-line: #252b38; --admin-text: #edf2fb; --admin-muted: #909bad; --admin-accent: #8b9cff; }
+html, body.admin-console-body, body.admin-console-body #root { min-height: 100%; width: 100%; background: var(--admin-bg); color: var(--admin-text); }
+body.admin-console-body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+.hendy-admin-standalone { min-height: 100vh; background: radial-gradient(ellipse at 15% -10%, rgba(61,80,150,.22), transparent 38%), var(--admin-bg); }
+.hendy-admin-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:68px; padding:0 clamp(16px,3vw,40px); border-bottom:1px solid var(--admin-line); background:rgba(11,12,16,.94); }
+.hendy-admin-brand { display:flex; gap:11px; align-items:center; color:var(--admin-text); text-decoration:none; }
+.hendy-admin-brand-icon { display:grid; place-items:center; width:38px; height:38px; color:#a8b4ff; background:#1d2340; border:1px solid #343d68; border-radius:12px; }
+.hendy-admin-brand strong,.hendy-admin-brand small { display:block; letter-spacing:.09em; }
+.hendy-admin-brand strong { font-size:14px; }
+.hendy-admin-brand small { margin-top:3px; color:var(--admin-muted); font-size:9px; }
+.hendy-admin-topbar-right { display:flex; gap:16px; align-items:center; }
+.hendy-admin-live,.hendy-admin-studio-link,.hendy-admin-security-note { display:inline-flex; align-items:center; gap:7px; font-size:12px; }
+.hendy-admin-live { color:#9be3bc; }
+.hendy-admin-studio-link { color:#c4caff; text-decoration:none; border:1px solid #303755; background:#171c31; padding:9px 12px; border-radius:9px; }
+.hendy-admin-studio-link:hover { background:#222a48; }
+.hendy-admin-main { max-width:1600px; margin:0 auto; padding:28px clamp(14px,3vw,40px) 40px; }
+.hendy-admin-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:22px; }
+.hendy-admin-eyebrow { color:#9aa9ff; font-size:10px; font-weight:800; letter-spacing:.15em; margin:0 0 8px; }
+.hendy-admin-heading h1 { margin:0; font-size:clamp(25px,3vw,36px); letter-spacing:-.04em; }
+.hendy-admin-description { margin:9px 0 0; max-width:700px; font-size:13px; color:var(--admin-muted); line-height:1.65; }
+.hendy-admin-security-note { color:#a8b4c8; background:#131823; border:1px solid var(--admin-line); border-radius:10px; padding:10px 12px; white-space:nowrap; }
+.hendy-admin-notice { display:flex; justify-content:space-between; gap:14px; padding:12px 14px; margin:0 0 16px; border:1px solid var(--admin-line); border-radius:10px; background:#151a25; font-size:13px; }
+.hendy-admin-notice.is-error { border-color:#713a48; color:#ffc5cf; }
+.hendy-admin-notice.is-success { border-color:#285f4e; color:#adf2d1; }
+.hendy-admin-notice button { border:0; background:transparent; color:inherit; cursor:pointer; font-size:20px; }
+.hendy-admin-footer { padding:18px clamp(16px,3vw,40px); color:#687387; border-top:1px solid var(--admin-line); text-align:center; font-size:11px; }
+@media (max-width:700px) { .hendy-admin-topbar { min-height:60px; } .hendy-admin-live { display:none; } .hendy-admin-heading { align-items:flex-start; flex-direction:column; } .hendy-admin-security-note { white-space:normal; } }

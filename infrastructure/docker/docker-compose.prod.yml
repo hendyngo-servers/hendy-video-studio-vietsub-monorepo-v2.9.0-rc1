@@ -1,0 +1,120 @@
+# =============================================================================
+# PRODUCTION INFRASTRUCTURE DOCKER COMPOSE
+# PostgreSQL 16 + Ktor Backend Server + Vietsub Studio Web + Redis + ClamAV
+# =============================================================================
+
+name: hendy-cybertech-prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hendy_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hendy_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set_POSTGRES_PASSWORD_in_.env}
+      POSTGRES_DB: ${POSTGRES_DB:-hendy_vietsub_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - prod_postgres_data:/var/lib/postgresql/data
+      - ../db-migrations/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - hendy_prod_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-hendy_admin} -d $${POSTGRES_DB:-hendy_vietsub_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ktor-backend:
+    build:
+      context: ../../integrated-pipeline
+      dockerfile: Dockerfile
+    container_name: hendy_ktor_server
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hendy_vietsub_db}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-hendy_vietsub_db}
+      POSTGRES_USER: ${POSTGRES_USER:-hendy_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set_POSTGRES_PASSWORD_in_.env}
+      REDIS_URL: redis://redis:6379
+      TELEGRAM_BOT_TOKEN: ${BOT_TOKEN:?Set_BOT_TOKEN_in_.env}
+      TELEGRAM_ADMIN_IDS: ${ADMIN_ID:-6138197737}
+      MINI_APP_URL: ${MINI_APP_URL:-https://ngogiaidy56-eng.github.io/BOT-TELE}
+      WEB_APP_URL: ${WEB_APP_URL:-https://telegram-mini-app.ngogiaidy56.workers.dev}
+      CORE_BACKEND_URL: ${CORE_BACKEND_URL:-https://telegram-mini-app.ngogiaidy56.workers.dev}
+    ports:
+      - "8080:8080"
+    volumes:
+      - prod_ktor_data:/app/server/data
+    networks:
+      - hendy_prod_net
+
+  vietsub-studio-web:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: hendy_vietsub_web
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ktor-backend:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hendy_admin}:${POSTGRES_PASSWORD:?Set_POSTGRES_PASSWORD_in_.env}@postgres:5432/${POSTGRES_DB:-hendy_vietsub_db}
+      KTOR_BACKEND_URL: http://ktor-backend:8080
+      ADMIN_ID: ${ADMIN_ID:-6138197737}
+      BOT_TOKEN: ${BOT_TOKEN:?Set_BOT_TOKEN_in_.env}
+      MINI_APP_URL: ${MINI_APP_URL:-https://ngogiaidy56-eng.github.io/BOT-TELE}
+      WEB_APP_URL: ${WEB_APP_URL:-https://telegram-mini-app.ngogiaidy56.workers.dev}
+      CORE_BACKEND_URL: ${CORE_BACKEND_URL:-https://telegram-mini-app.ngogiaidy56.workers.dev}
+    ports:
+      - "3000:3000"
+    networks:
+      - hendy_prod_net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: hendy_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - prod_redis_data:/data
+    networks:
+      - hendy_prod_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  clamav:
+    image: clamav/clamav:latest
+    container_name: hendy_clamav
+    restart: always
+    ports:
+      - "3310:3310"
+    networks:
+      - hendy_prod_net
+
+volumes:
+  prod_postgres_data:
+  prod_redis_data:
+  prod_ktor_data:
+
+networks:
+  hendy_prod_net:
+    driver: bridge

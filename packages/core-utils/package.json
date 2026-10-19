@@ -1,0 +1,6 @@
+{
+  "name": "@hendy-studio/core-utils",
+  "version": "2.8.0",
+  "private": true,
+  "description": "Shared utilities for Hendy Studio Pro 7-Tier Monorepo (CIDR validator, SRT/ASS Timecode Formatter, HMAC helpers)"
+}

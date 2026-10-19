@@ -1,0 +1,31 @@
+name: Hendy Studio Pro - Automated Cloudflare Workers & Edge WAF Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "workers/cloudflare-edge/**"
+      - "functions/**"
+      - "wrangler.toml"
+  workflow_dispatch:
+
+jobs:
+  deploy-cloudflare-edge:
+    name: "[TẦNG 3] Deploy Cloudflare Workers Edge WAF & Pages"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies & Build Bundle
+        run: |
+          npm install --include=dev
+          npm run build
+
+      - name: Verify Cloudflare Edge Worker Config
+        run: test -f workers/cloudflare-edge/wrangler.toml

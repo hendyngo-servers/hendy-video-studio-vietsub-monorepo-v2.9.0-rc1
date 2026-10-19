@@ -1,0 +1,89 @@
+name: Cloudflare Infrastructure Console
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/cloudflare-console/**"
+      - "services/cloudflare-control-api/**"
+      - "docs/cloudflare-infrastructure/**"
+      - ".github/workflows/cloudflare-control-api.yml"
+  pull_request:
+    paths:
+      - "apps/cloudflare-console/**"
+      - "services/cloudflare-control-api/**"
+      - "docs/cloudflare-infrastructure/**"
+      - ".github/workflows/cloudflare-control-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Check Cloudflare module and security tests
+        run: npm run check:cloudflare
+      - name: Validate Worker configuration syntax
+        run: node -e "JSON.parse(require('fs').readFileSync('services/cloudflare-control-api/wrangler.jsonc','utf8'))"
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: cloudflare-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Validate required deployment secrets
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ACCESS_ISSUER: ${{ secrets.ACCESS_ISSUER }}
+          ACCESS_AUD: ${{ secrets.ACCESS_AUD }}
+          CF_API_READ_TOKEN: ${{ secrets.CF_API_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          for key in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ACCESS_ISSUER ACCESS_AUD CF_API_READ_TOKEN; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Required GitHub Environment secret is missing: $key"
+              exit 1
+            fi
+          done
+          case "$ACCESS_ISSUER" in https://*) ;; *) echo "::error::ACCESS_ISSUER must use HTTPS"; exit 1 ;; esac
+      - name: Validate deployment bundle
+        run: npx --yes wrangler@4.149.0 deploy --config services/cloudflare-control-api/wrangler.jsonc --dry-run
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Set runtime-only Worker secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$ACCESS_ISSUER" | npx --yes wrangler@4.149.0 secret put ACCESS_ISSUER --config services/cloudflare-control-api/wrangler.jsonc
+          printf '%s' "$ACCESS_AUD" | npx --yes wrangler@4.149.0 secret put ACCESS_AUD --config services/cloudflare-control-api/wrangler.jsonc
+          printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | npx --yes wrangler@4.149.0 secret put CF_ACCOUNT_ID --config services/cloudflare-control-api/wrangler.jsonc
+          printf '%s' "$CF_API_READ_TOKEN" | npx --yes wrangler@4.149.0 secret put CF_API_READ_TOKEN --config services/cloudflare-control-api/wrangler.jsonc
+        env:
+          ACCESS_ISSUER: ${{ secrets.ACCESS_ISSUER }}
+          ACCESS_AUD: ${{ secrets.ACCESS_AUD }}
+          CF_API_READ_TOKEN: ${{ secrets.CF_API_READ_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Deploy Cloudflare control API and console assets
+        run: npx --yes wrangler@4.149.0 deploy --config services/cloudflare-control-api/wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
