@@ -354,7 +354,7 @@ export const App: React.FC = () => {
       );
       setProgressPercent(65);
 
-      const response = await fetch("/api/vietsub/generate", {
+      const response = await fetch(`${(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "")}/api/vietsub/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -406,7 +406,7 @@ export const App: React.FC = () => {
 
     setIsRefining(true);
     try {
-      const response = await fetch("/api/vietsub/refine", {
+      const response = await fetch(`${(import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "")}/api/vietsub/refine`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
