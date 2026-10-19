@@ -33,7 +33,7 @@ jobs:
       - name: Verify Pages output
         run: |
           test -f dist/index.html
-          test -f dist/studio.html
+          test -f dist/apps/studio-web/index.html
           test ! -f dist/admin.html
 
   deploy-pages:
