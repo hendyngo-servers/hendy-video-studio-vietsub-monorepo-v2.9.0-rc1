@@ -1,0 +1,7 @@
+# Cloudflare Pages project configuration (frontend only).
+# Dashboard settings: Framework preset Vite, build command "npm run build:pages",
+# build output directory "dist", root directory "/".
+# Deploy using: npx wrangler@4.149.0 pages deploy dist --project-name=hendy-vietsub-pro --branch=main
+name = "hendy-vietsub-pro"
+compatibility_date = "2026-10-19"
+pages_build_output_dir = "./dist"
