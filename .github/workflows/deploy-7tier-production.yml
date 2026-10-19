@@ -1,27 +1,13 @@
-name: Hendy Studio Pro - 7-Tier Zero-Downtime Production Pipeline
+name: Validate Hendy Studio monorepo (legacy workflow retired)
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  verify-and-build-7tier:
+  notice:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Monorepo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20 LTS
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install Dependencies
-        run: npm install --include=dev
-
-      - name: TypeScript & 7-Tier Architecture Lint
-        run: npm run lint
-
-      - name: Build Studio Web (apps/studio-web) & Admin Web (apps/admin-web)
-        run: npm run build
+      - run: echo "This legacy workflow is intentionally manual-only. Use deploy.yml for Pages + Render build validation and deploy-cloudflare.yml for the control Worker."
