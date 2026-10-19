@@ -1,8 +1,8 @@
-# Render.com Infrastructure-as-Code Blueprint
-# Production Deployment for https://hendy-video-studio-new-pro.onrender.com/
+# Render Blueprint — Node/Express backend for Hendy Video Studio VietSub
+# Cloudflare Pages serves the public frontend; Render runs the Node.js API and processing routes.
 services:
   - type: web
-    name: hendy-video-studio-new-pro
+    name: hendy-video-studio-vietsub-api
     runtime: node
     plan: free
     region: singapore
@@ -17,16 +17,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: PUBLIC_URL
-        value: https://hendy-video-studio-new-pro.onrender.com
-      - key: ADMIN_GATEWAY_URL
-        value: https://hendy-video-studio-new-pro.onrender.com/admin-console/network-gateway
-      - key: VITE_APP_NAME
-        value: Hendy Vietsub Studio Pro
-      - key: VITE_PUBLIC_URL
-        value: https://hendy-video-studio-new-pro.onrender.com
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
-      # Required to protect /admin.html and administrative API namespaces.
       - key: ADMIN_ACCESS_ISSUER
         sync: false
       - key: ADMIN_ACCESS_AUD
