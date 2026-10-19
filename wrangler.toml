@@ -1,5 +1,5 @@
-# Cloudflare Pages configuration for the public frontend and Pages Functions.
-# BACKEND_API_URL is a public service origin, not a secret.
+# Cloudflare Pages static frontend + Pages Functions.
+# BACKEND_API_URL must be the public HTTPS origin of the Render web service.
 name = "hendy-vietsub-pro"
 pages_build_output_dir = "./dist"
 compatibility_date = "2026-10-19"
