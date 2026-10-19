@@ -15,7 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate-build:
+  validate:
+    name: Validate app and deployment targets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,53 +24,67 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies and reconcile lockfile
-        run: npm install --no-audit --no-fund
-      - name: Run Cloudflare/admin security tests
+      - name: Install dependencies
+        run: npm install --include=dev --no-audit --no-fund
+      - name: Check Cloudflare/admin security tests
         run: npm run check:cloudflare
-      - name: Validate Cloudflare Pages Function syntax
+      - name: Check Pages Function syntax
         run: |
           node --check 'functions/api/[[path]].js'
           node --check functions/health.js
-      - name: Build public frontend for Pages
+      - name: Build static frontend for Cloudflare Pages
         run: npm run build:pages
         env:
           NODE_ENV: production
-      - name: Verify Pages output
+      - name: Assert Pages output is public-only
         run: |
           test -f dist/index.html
           test -f dist/apps/studio-web/index.html
           test ! -f dist/admin.html
+      - name: Build origin app bundle for Render
+        run: npm run build:render
+        env:
+          NODE_ENV: production
+      - name: Assert Render build output
+        run: |
+          test -f dist/index.html
+          test -f dist/admin.html
+          test -f dist/apps/studio-web/index.html
 
   deploy-pages:
+    name: Deploy Cloudflare Pages production
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: validate-build
+    needs: validate
     runs-on: ubuntu-latest
+    environment:
+      name: cloudflare-production
+      url: https://hendy-vietsub-pro.pages.dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies and reconcile lockfile
-        run: npm install --no-audit --no-fund
-      - name: Build public frontend for Pages
+      - name: Install dependencies
+        run: npm install --include=dev --no-audit --no-fund
+      - name: Build public frontend
         run: npm run build:pages
         env:
           NODE_ENV: production
-      - name: Check Cloudflare deployment credentials
+      - name: Verify deployment credentials are present
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          test -n "$CLOUDFLARE_API_TOKEN" || (echo "Missing GitHub secret CLOUDFLARE_API_TOKEN" && exit 1)
-          test -n "$CLOUDFLARE_ACCOUNT_ID" || (echo "Missing GitHub secret CLOUDFLARE_ACCOUNT_ID" && exit 1)
-      - name: Deploy frontend and Pages Functions (not root Node server)
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "::error::Missing environment secret CLOUDFLARE_API_TOKEN" && exit 1)
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || (echo "::error::Missing environment secret CLOUDFLARE_ACCOUNT_ID" && exit 1)
+      - name: Deploy Cloudflare Pages
         run: npx --yes wrangler@4.149.0 pages deploy dist --config wrangler.toml --branch=main
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      - name: Verify production Pages health proxy
+      - name: Smoke test Pages and Render health proxy
         run: |
+          curl --fail --silent --show-error --retry 8 --retry-delay 5 https://hendy-vietsub-pro.pages.dev/
           curl --fail --silent --show-error --retry 8 --retry-delay 5 https://hendy-vietsub-pro.pages.dev/health
           curl --fail --silent --show-error --retry 8 --retry-delay 5 https://hendy-vietsub-pro.pages.dev/api/health
