@@ -2,7 +2,7 @@ name: CI and Deploy Cloudflare Pages
 
 on:
   push:
-    branches: [main, "fix/pages-render-production-2026-10"]
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
