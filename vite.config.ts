@@ -127,10 +127,12 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: path.resolve(__dirname, 'index.html'),
-        ...(process.env.HENDY_BUILD_TARGET === 'public-pages' ? {} : {
+        ...(process.env.HENDY_BUILD_TARGET === 'public-pages' ? {
+          studio: path.resolve(__dirname, 'apps/studio-web/index.html'),
+        } : {
           admin: path.resolve(__dirname, 'apps/admin-web/index.html'),
+          studio: path.resolve(__dirname, 'apps/studio-web/index.html'),
         }),
-        studio: path.resolve(__dirname, 'apps/studio-web/index.html'),
       },
     },
   },
