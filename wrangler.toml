@@ -1,0 +1,9 @@
+# Cloudflare Pages configuration for the public frontend and Pages Functions.
+# BACKEND_API_URL is a public service origin, not a secret.
+name = "hendy-vietsub-pro"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-19"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+BACKEND_API_URL = "https://hendy-video-studio-new-pro.onrender.com"
