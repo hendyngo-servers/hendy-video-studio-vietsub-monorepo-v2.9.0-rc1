@@ -16,11 +16,11 @@
 - Configure the required secret environment variables in the Render dashboard. Never commit secrets.
 
 ## API routing from Pages
-The repository contains a Cloudflare Pages Function proxy for `/api/*` and `/health`. Set `BACKEND_API_URL` in Cloudflare Pages to the actual Render service URL (HTTPS origin); relative `/api/*` calls from the frontend then pass through Pages to Render. The separate `BACKEND_API_URL` variable is not needed when using this same-origin proxy.
+The repository contains a Cloudflare Pages Function proxy for `/api/*` and `/health`. Set `BACKEND_API_URL` in Cloudflare Pages to the actual Render service URL (HTTPS origin); relative `/api/*` calls from the frontend then pass through Pages to Render.
 
 
 ## Cloudflare Pages environment variables
 - `BACKEND_API_URL`: set to the actual Render Web Service origin, for example `https://hendy-video-studio-vietsub-api.onrender.com` after the service exists. Do not add a trailing slash. This is a Pages Function runtime setting; it is not embedded into frontend assets.
 - `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`: GitHub Actions repository secrets used only by the Pages deploy job.
 
-The current frontend's AI subtitle-generation and refinement requests use `BACKEND_API_URL` to reach Render. Other API endpoints that are called from additional workspaces should be reviewed before production if they rely on same-origin `/api/*` paths.
+The AI subtitle-generation and refinement requests use the same-origin Pages proxy. Other API endpoints used by additional workspaces should be reviewed before production to ensure their proxy routes are covered.
