@@ -1,34 +1,13 @@
-name: Hendy Studio Pro - Release Master CI/CD Pipeline (7-Tier Multi-Platform)
+name: Validate Hendy Studio release (legacy workflow retired)
 
 on:
-  push:
-    branches: [main]
-    tags: ["v*.*.*"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build-test-deploy-master:
-    name: "[TẦNG 0 -> TẦNG 6] Master Build, Verify & Zero-Downtime Deploy"
+  notice:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Monorepo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20 LTS
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm install --include=dev
-
-      - name: Typecheck & Lint 7-Tier Monorepo
-        run: npm run lint
-
-      - name: Build Studio Web (apps/studio-web) & Admin Web (apps/admin-web)
-        run: npm run build
-        env:
-          NODE_ENV: production
-          VITE_PUBLIC_URL: https://hendy-video-studio-new-pro.onrender.com
-          ADMIN_CONTROL_PLANE_URL: https://admin.hendystudio.net
+      - run: echo "This legacy workflow is intentionally manual-only to prevent a parallel production deployment. Use deploy.yml and deploy-cloudflare.yml."
