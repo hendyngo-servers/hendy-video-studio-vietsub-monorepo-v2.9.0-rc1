@@ -1,31 +1,59 @@
-name: Hendy Studio Pro - Automated Cloudflare Workers & Edge WAF Deployment
+name: Deploy Cloudflare control Worker
 
 on:
   push:
     branches: [main]
     paths:
       - "workers/cloudflare-edge/**"
-      - "functions/**"
-      - "wrangler.toml"
+      - "services/cloudflare-control-api/**"
+      - ".github/workflows/deploy-cloudflare.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: hendy-control-worker-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  deploy-cloudflare-edge:
-    name: "[TẦNG 3] Deploy Cloudflare Workers Edge WAF & Pages"
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20 LTS
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
-      - name: Install Dependencies & Build Bundle
+          node-version: 20
+      - name: Validate control Worker source and config
         run: |
-          npm install --include=dev
-          npm run build
+          node --check services/cloudflare-control-api/worker/index.mjs
+          node --check services/api-gateway/cloudflareAccessMiddleware.mjs
+          test -f services/cloudflare-control-api/wrangler.jsonc
+          npm install --include=dev --no-audit --no-fund
+          npm run check:cloudflare
+      - name: Dry-run Worker bundle
+        run: npx --yes wrangler@4.149.0 deploy --config services/cloudflare-control-api/wrangler.jsonc --dry-run
 
-      - name: Verify Cloudflare Edge Worker Config
-        run: test -f workers/cloudflare-edge/wrangler.toml
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: cloudflare-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify Cloudflare Worker secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "::error::Missing environment secret CLOUDFLARE_API_TOKEN" && exit 1)
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || (echo "::error::Missing environment secret CLOUDFLARE_ACCOUNT_ID" && exit 1)
+      - name: Deploy Cloudflare control Worker
+        run: npx --yes wrangler@4.149.0 deploy --config services/cloudflare-control-api/wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
