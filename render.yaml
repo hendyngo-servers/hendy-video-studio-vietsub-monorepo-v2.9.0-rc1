@@ -6,7 +6,7 @@ services:
     runtime: node
     plan: free
     region: singapore
-    branch: main
+    branch: fix/pages-render-production-2026-10
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /health
